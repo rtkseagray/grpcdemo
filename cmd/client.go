@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"io"
 	"log"
 
 	"grpcdemo/rpc"
@@ -25,7 +26,37 @@ func RunClient() {
 
 	client := rpc.NewDemoServiceClient(conn)
 
-	response, err := client.HelloWorld(context.Background(), &rpc.HelloWorldRequest{Name: "Warren", NickName: "seagray"})
+	request := &rpc.HelloWorldRequest{Name: "Warren", NickName: "seagray"}
+	helloWorld(client, request)
+	spellMyName(client, request)
+}
+
+func spellMyName(client rpc.DemoServiceClient, request *rpc.HelloWorldRequest) {
+	stream, err := client.SpellMyName(context.Background(), request)
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		recv, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			panic(err)
+		}
+
+		log.Println(recv.Letter)
+	}
+
+	if err = stream.CloseSend(); err != nil {
+		panic(err)
+	}
+}
+
+func helloWorld(client rpc.DemoServiceClient, request *rpc.HelloWorldRequest) {
+	response, err := client.HelloWorld(context.Background(), request)
 	if err != nil {
 		panic(err)
 	}

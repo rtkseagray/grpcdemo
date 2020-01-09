@@ -1,16 +1,16 @@
 syntax = "proto3";
 package rpc;
 
+// There's a second RPC defined here now, but it's slightly different than the first one. This RPC
+// returns a streaming response. It accepts the same HelloWorldRequest that we're already using, but
+// instead of returning a single message, it returns a sequence of LetterResponse messages that the
+// client can iteratively consume.
 service DemoService {
     rpc HelloWorld (HelloWorldRequest) returns (HelloWorldResponse);
+    rpc SpellMyName (HelloWorldRequest) returns (stream LetterResponse);
 }
 
-// We've added a NickName parameter to our HelloWorldRequest and assigned it a new field number.
-// The server and client can now be regenerated and will be backward compatible with our existing
-// implementation and older clients.
-//
-// During deserialization, unexpected fields are ignored by both the server and the client. As of
-// proto3, all fields are optional in all messages. It is not possible to mark a field as "required".
+
 message HelloWorldRequest {
     string Name = 1;
     string NickName = 2;
@@ -18,4 +18,8 @@ message HelloWorldRequest {
 
 message HelloWorldResponse {
     string Greeting = 1;
+}
+
+message LetterResponse {
+    string Letter = 1;
 }

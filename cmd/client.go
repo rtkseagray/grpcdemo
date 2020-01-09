@@ -25,7 +25,7 @@ func RunClient() {
 
 	client := rpc.NewDemoServiceClient(conn)
 
-	response, err := client.HelloWorld(context.Background(), &rpc.HelloWorldRequest{Name: "Warren"})
+	response, err := client.HelloWorld(context.Background(), &rpc.HelloWorldRequest{Name: "Warren", NickName: "seagray"})
 	if err != nil {
 		panic(err)
 	}

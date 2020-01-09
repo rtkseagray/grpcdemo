@@ -1,19 +1,19 @@
 syntax = "proto3";
 package rpc;
 
-// This is a trivial example of a hello world service. This RPC accepts a user's name and returns
-// a friendly greeting. All RPCs must accept and return a message. The "empty" message can be used
-// in the event that the RPC doesn't accept or return data. Messages are always required to allow
-// for forward compatibility.
 service DemoService {
     rpc HelloWorld (HelloWorldRequest) returns (HelloWorldResponse);
 }
 
-// Messages have a name and define zero or more typed fields. This message defines a single string
-// field called "Name". Each field defines a "field number" that uniquely identifies that field.
-// Once set, these cannot be changed as they're used for serialization of the binary wire format.
+// We've added a NickName parameter to our HelloWorldRequest and assigned it a new field number.
+// The server and client can now be regenerated and will be backward compatible with our existing
+// implementation and older clients.
+//
+// During deserialization, unexpected fields are ignored by both the server and the client. As of
+// proto3, all fields are optional in all messages. It is not possible to mark a field as "required".
 message HelloWorldRequest {
     string Name = 1;
+    string NickName = 2;
 }
 
 message HelloWorldResponse {

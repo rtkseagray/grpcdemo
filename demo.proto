@@ -1,0 +1,21 @@
+syntax = "proto3";
+package rpc;
+
+// This is a trivial example of a hello world service. This RPC accepts a user's name and returns
+// a friendly greeting. All RPCs must accept and return a message. The "empty" message can be used
+// in the event that the RPC doesn't accept or return data. Messages are always required to allow
+// for forward compatibility.
+service DemoService {
+    rpc HelloWorld (HelloWorldRequest) returns (HelloWorldResponse);
+}
+
+// Messages have a name and define zero or more typed fields. This message defines a single string
+// field called "Name". Each field defines a "field number" that uniquely identifies that field.
+// Once set, these cannot be changed as they're used for serialization of the binary wire format.
+message HelloWorldRequest {
+    string Name = 1;
+}
+
+message HelloWorldResponse {
+    string Greeting = 1;
+}

@@ -18,7 +18,10 @@ func RunServer() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	// We've wired up our middleware here. Though only one unary and one streaming interceptor can
+	// be wired up to the server, they can be chained in their implementation (so one interceptor
+	// can explicitly call the next).
+	s := grpc.NewServer(grpc.UnaryInterceptor(server.UnaryLoggingMiddleware), grpc.StreamInterceptor(server.StreamingLoggingMiddleware))
 	rpc.RegisterDemoServiceServer(s, &server.DemoService{})
 	log.Fatal(s.Serve(lis))
 }

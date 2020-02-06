@@ -5,14 +5,24 @@ import (
 	"io"
 	"log"
 
+	"grpcdemo/client"
 	"grpcdemo/rpc"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 func RunClient() {
 	log.Println("starting client")
-	conn, err := grpc.Dial("localhost:7777", grpc.WithInsecure())
+
+	// Note that our client wiring has changed slightly. We're configuring gRPC to send credentials
+	// on each request from data stored in the request Context.
+	conn, err := grpc.Dial(
+		"localhost:7777",
+		grpc.WithInsecure(),
+		grpc.WithPerRPCCredentials(credentials.PerRPCCredentials(client.ContextBasedJWT{})),
+	)
+
 	if err != nil {
 		panic(err)
 	}
@@ -24,15 +34,15 @@ func RunClient() {
 		}
 	}()
 
-	client := rpc.NewDemoServiceClient(conn)
+	c := rpc.NewDemoServiceClient(conn)
 
 	request := &rpc.HelloWorldRequest{Name: "Warren", NickName: "seagray"}
-	helloWorld(client, request)
-	spellMyName(client, request)
+	helloWorld(c, request)
+	spellMyName(c, request)
 }
 
-func spellMyName(client rpc.DemoServiceClient, request *rpc.HelloWorldRequest) {
-	stream, err := client.SpellMyName(context.Background(), request)
+func spellMyName(c rpc.DemoServiceClient, request *rpc.HelloWorldRequest) {
+	stream, err := c.SpellMyName(client.Auth(context.Background(), "wgray"), request)
 	if err != nil {
 		panic(err)
 	}
@@ -55,8 +65,8 @@ func spellMyName(client rpc.DemoServiceClient, request *rpc.HelloWorldRequest) {
 	}
 }
 
-func helloWorld(client rpc.DemoServiceClient, request *rpc.HelloWorldRequest) {
-	response, err := client.HelloWorld(context.Background(), request)
+func helloWorld(c rpc.DemoServiceClient, request *rpc.HelloWorldRequest) {
+	response, err := c.HelloWorld(client.Auth(context.Background(), "seagray"), request)
 	if err != nil {
 		panic(err)
 	}

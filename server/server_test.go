@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
@@ -45,7 +46,9 @@ func (s *ServerTestSuite) TestSpellMyName() {
 	// Create the server and bind it to the buffcon.
 	listener := bufconn.Listen(3)
 	server := grpc.NewServer()
-	rpc.RegisterDemoServiceServer(server, &DemoService{})
+	service := DemoService{sleepTime: 10 * time.Millisecond}
+
+	rpc.RegisterDemoServiceServer(server, &service)
 	go func() {
 		err := server.Serve(listener)
 		if err != nil {
@@ -85,4 +88,8 @@ func (s *ServerTestSuite) TestSpellMyName() {
 
 	_, err = stream.Recv()
 	s.Assert().Equal(io.EOF, err)
+}
+
+func (s *ServerTestSuite) SetupSuite() {
+	panic("implement me")
 }
